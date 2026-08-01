@@ -1,6 +1,5 @@
 """Setup for h5pxblock XBlock."""
 
-
 import os
 
 from pathlib import Path
@@ -27,36 +26,36 @@ def package_data(pkg, roots):
 
 
 setup(
-    name='h5p-xblock',
-    version='0.2.18',
-    description='XBlock to play self hosted h5p content inside open edX',
+    name="h5p-xblock",
+    version="0.2.18",
+    description="XBlock to play self hosted h5p content inside open edX",
     long_description=long_description,
-    long_description_content_type='text/markdown',
-    url='https://github.com/edly-io/h5pxblock',
-    license='MIT',
-    author='edly',
-    author_email='hello@edly.io',
-    keywords='python edx h5p xblock',
+    long_description_content_type="text/markdown",
+    url="https://github.com/edly-io/h5pxblock",
+    license="MIT",
+    author="edly",
+    author_email="hello@edly.io",
+    keywords="python edx h5p xblock",
     packages=[
-        'h5pxblock',
+        "h5pxblock",
     ],
     install_requires=[
-        'XBlock',
+        "XBlock",
     ],
     classifiers=[
-        'Development Status :: 4 - Beta',
-        'Framework :: Django',
-        'Framework :: Django :: 3.2',
-        'Framework :: Django :: 4.0',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Natural Language :: English',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.8',
+        "Development Status :: 4 - Beta",
+        "Framework :: Django",
+        "Framework :: Django :: 3.2",
+        "Framework :: Django :: 4.0",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
     ],
     entry_points={
-        'xblock.v1': [
-            'h5pxblock = h5pxblock:H5PPlayerXBlock',
+        "xblock.v1": [
+            "h5pxblock = h5pxblock:H5PPlayerXBlock",
         ]
     },
     package_data=package_data("h5pxblock", ["static", "public", "translations"]),

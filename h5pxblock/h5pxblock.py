@@ -25,9 +25,12 @@ from xblock.fields import (
     String,
 )
 from web_fragments.fragment import Fragment
+
 try:
     from xblock.utils.resources import ResourceLoader
-except ModuleNotFoundError:  # For backward compatibility with releases older than Quince.
+except (
+    ModuleNotFoundError
+):  # For backward compatibility with releases older than Quince.
     from xblockutils.resources import ResourceLoader
 try:
     # Older Open edX releases (Redwood and earlier) install a backported version of
@@ -64,13 +67,14 @@ class SubmissionStatus(Enum):
     COMPLETED = _("Completed")
 
 
-@XBlock.wants('user')
-@XBlock.wants('i18n')
+@XBlock.wants("user")
+@XBlock.wants("i18n")
 class H5PPlayerXBlock(XBlock, CompletableXBlockMixin):
     """
     H5P XBlock provides ability to host and play h5p content inside open edX course.
     It also provides ability to route xAPI event to LRS.
     """
+
     player_id = String(
         display_name=_("H5P Player Id"),
         help=_("Unique ID for player instance"),
@@ -95,35 +99,33 @@ class H5PPlayerXBlock(XBlock, CompletableXBlockMixin):
         display_name=_("Show H5P player frame"),
         help=_("whether to show H5P player frame and button"),
         default=False,
-        scope=Scope.settings
+        scope=Scope.settings,
     )
 
     show_copyright = Boolean(
         display_name=_("Show copyright button"),
         help=_("whether to show copyright button"),
         default=False,
-        scope=Scope.settings
+        scope=Scope.settings,
     )
 
     show_h5p = Boolean(
         display_name=_("Show h5p icon"),
         help=_("whether to show h5p icon"),
         default=False,
-        scope=Scope.settings
+        scope=Scope.settings,
     )
 
     show_fullscreen = Boolean(
         display_name=_("Show fullscreen button"),
         help=_("whether to show fullscreen button"),
         default=False,
-        scope=Scope.settings
+        scope=Scope.settings,
     )
 
     has_score = Boolean(
         display_name=_("Is Scorable"),
-        help=_(
-            "Select True if this component will save score"
-        ),
+        help=_("Select True if this component will save score"),
         default=False,
         scope=Scope.settings,
     )
@@ -141,7 +143,7 @@ class H5PPlayerXBlock(XBlock, CompletableXBlockMixin):
     interaction_data = String(
         help=_("User previous content interaction states"),
         default=None,
-        scope=Scope.user_state
+        scope=Scope.user_state,
     )
 
     weight = Float(
@@ -204,7 +206,7 @@ class H5PPlayerXBlock(XBlock, CompletableXBlockMixin):
         return loader.render_django_template(
             template_path,
             context,
-            i18n_service=self.runtime.service(self, 'i18n'),
+            i18n_service=self.runtime.service(self, "i18n"),
         )
 
     def max_score(self):
@@ -212,15 +214,17 @@ class H5PPlayerXBlock(XBlock, CompletableXBlockMixin):
 
     @property
     def store_content_on_local_fs(self):
-        return H5P_STORAGE.__class__.__name__ == 'FileSystemStorage'
+        return H5P_STORAGE.__class__.__name__ == "FileSystemStorage"
 
     @property
     def get_block_path_prefix(self):
         # In worbench self.location is a mock object so we have to use usage_id
-        if 'Workbench' in self.runtime.__class__.__name__:
+        if "Workbench" in self.runtime.__class__.__name__:
             return str(self.scope_ids.usage_id)
         else:
-            return os.path.join(self.location.org, self.location.course, self.location.block_id)
+            return os.path.join(
+                self.location.org, self.location.course, self.location.block_id
+            )
 
     @property
     def h5p_content_url(self):
@@ -228,15 +232,11 @@ class H5PPlayerXBlock(XBlock, CompletableXBlockMixin):
 
     @property
     def local_storage_path(self):
-        return os.path.join(
-            H5P_ROOT, self.get_block_path_prefix
-        )
+        return os.path.join(H5P_ROOT, self.get_block_path_prefix)
 
     @property
     def cloud_storage_path(self):
-        return os.path.join(
-            'h5pxblockmedia', self.get_block_path_prefix
-        )
+        return os.path.join("h5pxblockmedia", self.get_block_path_prefix)
 
     def get_context_studio(self):
         return {
@@ -265,8 +265,8 @@ class H5PPlayerXBlock(XBlock, CompletableXBlockMixin):
             json_args={
                 "uploading_txt": self.ugettext("Uploading"),
                 "uploaded_txt": self.ugettext("Uploaded"),
-                "extracting_txt": self.ugettext("Extracting")
-            }
+                "extracting_txt": self.ugettext("Extracting"),
+            },
         )
         return frag
 
@@ -283,11 +283,11 @@ class H5PPlayerXBlock(XBlock, CompletableXBlockMixin):
         frag.add_css(self.resource_string("static/css/student_view.css"))
         frag.add_javascript(self.resource_string("static/js/src/installRequired.js"))
         frag.add_javascript(self.resource_string("static/js/src/h5pxblock.js"))
-        user_service = self.runtime.service(self, 'user')
+        user_service = self.runtime.service(self, "user")
         user = user_service.get_current_user()
         save_freq = self.save_freq if self.save_freq > 0 else False
         frag.initialize_js(
-            'H5PPlayerXBlock',
+            "H5PPlayerXBlock",
             json_args={
                 "player_id": self.player_id,
                 "frame": self.show_frame,
@@ -298,21 +298,23 @@ class H5PPlayerXBlock(XBlock, CompletableXBlockMixin):
                 "user_full_name": user.full_name,
                 "user_email": user.emails[0],
                 "userData": self.interaction_data,
-                "customJsPath": self.runtime.local_resource_url(self, "public/js/h5pcustom.js"),
-                "h5pJsonPath": self.h5p_content_json_path
-            }
+                "customJsPath": self.runtime.local_resource_url(
+                    self, "public/js/h5pcustom.js"
+                ),
+                "h5pJsonPath": self.h5p_content_json_path,
+            },
         )
         return frag
 
     @XBlock.handler
-    def user_interaction_data(self, request, suffix=''):
+    def user_interaction_data(self, request, suffix=""):
         """
         Handles to retrieve and save user interactions with h5p content
         """
         success = False
         if request.method == "POST":
             try:
-                self.interaction_data = request.POST['data']
+                self.interaction_data = request.POST["data"]
                 success = True
             except BaseException as exp:
                 log.error("Error while saving learner interaction data: %s", exp)
@@ -389,7 +391,7 @@ class H5PPlayerXBlock(XBlock, CompletableXBlockMixin):
         return points, weight
 
     @XBlock.json_handler
-    def result_handler(self, data, suffix=''):
+    def result_handler(self, data, suffix=""):
         """
         Handler to injest results when h5p content triggers completion or rescorable events
         """
@@ -403,28 +405,35 @@ class H5PPlayerXBlock(XBlock, CompletableXBlockMixin):
 
         if self.is_past_due:
             return Response(
-                json.dumps({"result": {"save_completion": save_completion, "save_score": save_score}}),
+                json.dumps(
+                    {
+                        "result": {
+                            "save_completion": save_completion,
+                            "save_score": save_score,
+                        }
+                    }
+                ),
                 content_type="application/json",
                 charset="utf8",
             )
 
-        if self.has_score and data['result'] and data['result']['score']:
-            raw_score = data['result']['score']['raw']
-            max_score = data['result']['score']['max']
+        if self.has_score and data["result"] and data["result"]["score"]:
+            raw_score = data["result"]["score"]["raw"]
+            max_score = data["result"]["score"]["max"]
             score = 0
             if max_score:
-                score = raw_score/max_score * self.points
+                score = raw_score / max_score * self.points
             grade_dict = {
-                'value': score,
-                'max_value': self.points,
-                'only_if_higher': True,
+                "value": score,
+                "max_value": self.points,
+                "only_if_higher": True,
             }
             try:
-                self.runtime.publish(self, 'grade', grade_dict)
+                self.runtime.publish(self, "grade", grade_dict)
                 save_score = True
             except TypeError:
                 grade_dict["only_if_higher"] = False
-                self.runtime.publish(self, 'grade', grade_dict)
+                self.runtime.publish(self, "grade", grade_dict)
                 save_score = True
             except BaseException as exp:
                 log.error("Error while publishing score %s", exp)
@@ -433,7 +442,14 @@ class H5PPlayerXBlock(XBlock, CompletableXBlockMixin):
                 self.weighted_score = score
 
         return Response(
-            json.dumps({"result": {"save_completion": save_completion, "save_score": save_score}}),
+            json.dumps(
+                {
+                    "result": {
+                        "save_completion": save_completion,
+                        "save_score": save_score,
+                    }
+                }
+            ),
             content_type="application/json",
             charset="utf8",
         )
@@ -451,14 +467,18 @@ class H5PPlayerXBlock(XBlock, CompletableXBlockMixin):
     def workbench_scenarios():
         """A canned scenario for display in the workbench."""
         return [
-            ("H5PPlayerXBlock",
-             """<h5pxblock/>
-             """),
-            ("Multiple H5PPlayerXBlock",
-             """<vertical_demo>
+            (
+                "H5PPlayerXBlock",
+                """<h5pxblock/>
+             """,
+            ),
+            (
+                "Multiple H5PPlayerXBlock",
+                """<vertical_demo>
                 <h5pxblock/>
                 <h5pxblock/>
                 <h5pxblock/>
                 </vertical_demo>
-             """),
+             """,
+            ),
         ]

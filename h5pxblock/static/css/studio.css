@@ -70,3 +70,17 @@
 .copy-text:hover {
     cursor: pointer;
 }
+
+/* "Reuse Existing H5P Content" is hidden in Studio -- authors always upload a
+   fresh .h5p file instead. */
+.h5p-reuse-existing-content {
+    display: none;
+}
+
+.h5p-upload-help {
+    font-style: italic;
+}
+
+.h5p-upload-help a {
+    font-style: normal;
+}

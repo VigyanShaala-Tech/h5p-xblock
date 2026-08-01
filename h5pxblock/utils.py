@@ -1,6 +1,7 @@
 """
 Utility methods for xblock
 """
+
 import concurrent.futures
 import logging
 import os
@@ -29,11 +30,12 @@ def get_h5p_storage():
       3) Fallback to Django's default_storage singleton.
     """
     # Priority 1: Django 4.2+/5.x STORAGES registry
-    storages_config = getattr(settings, 'STORAGES', {})
+    storages_config = getattr(settings, "STORAGES", {})
     if isinstance(storages_config, dict) and "h5pxblock_storage" in storages_config:
         # Prefer Django's storages registry if available (Django 4.2+/5.x)
         from django.core.files import storage as storage_module
-        if hasattr(storage_module, 'storages'):
+
+        if hasattr(storage_module, "storages"):
             return storage_module.storages["h5pxblock_storage"]
         # Manual instantiation path for environments without the handler
         cfg = storages_config.get("h5pxblock_storage", {})
@@ -48,10 +50,9 @@ def get_h5p_storage():
     if not h5p_storage_settings:
         return django_default_storage
 
-    storage_class_import_path = (
-        h5p_storage_settings.get("storage_class")
-        or h5p_storage_settings.get("STORAGE_CLASS")
-    )
+    storage_class_import_path = h5p_storage_settings.get(
+        "storage_class"
+    ) or h5p_storage_settings.get("STORAGE_CLASS")
     storage_settings = (
         h5p_storage_settings.get("settings")
         or h5p_storage_settings.get("STORAGE_KWARGS")
@@ -67,8 +68,8 @@ def get_h5p_storage():
 
 
 def str2bool(val):
-    """ Converts string value to boolean"""
-    return val in ['True', 'true', '1']
+    """Converts string value to boolean"""
+    return val in ["True", "true", "1"]
 
 
 def delete_path(path):
@@ -112,11 +113,11 @@ def unpack_package_local_path(package, path):
     os.makedirs(path)
 
     if not is_zipfile(package):
-        log.error('%s is not a valid zip', package.name)
+        log.error("%s is not a valid zip", package.name)
         return
 
-    with ZipFile(package, 'r') as h5p_zip:
-        log.info('Extracting all the files now from %s', package.name)
+    with ZipFile(package, "r") as h5p_zip:
+        log.info("Extracting all the files now from %s", package.name)
         h5p_zip.extractall(path)
 
 
@@ -125,15 +126,21 @@ def unpack_and_upload_on_cloud(package, storage, path):
     Unpacks a zip file and upload it on cloud storage
     """
     if not is_zipfile(package):
-        log.error('%s is not a valid zip', package.name)
+        log.error("%s is not a valid zip", package.name)
         return
 
     delete_existing_files_cloud(storage, path)
 
-    with ZipFile(package, 'r') as h5p_zip:
+    with ZipFile(package, "r") as h5p_zip:
         with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
             for zipfile_name in h5p_zip.namelist():
                 real_path = os.path.join(path, zipfile_name)
-                if not os.path.basename(real_path) in {"", ".", ".."}:  # skip invalid or dangerous paths
-                    future = executor.submit(storage.save, real_path, ContentFile(h5p_zip.read(zipfile_name)))
+                if not os.path.basename(real_path) in {
+                    "",
+                    ".",
+                    "..",
+                }:  # skip invalid or dangerous paths
+                    future = executor.submit(
+                        storage.save, real_path, ContentFile(h5p_zip.read(zipfile_name))
+                    )
                     future.add_done_callback(future_result_handler)

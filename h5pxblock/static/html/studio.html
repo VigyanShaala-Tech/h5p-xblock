@@ -22,13 +22,19 @@
       <div class="tip setting-help "><span><b>{% trans "Currently:" %}</b> {{ h5p_xblock.h5p_content_meta.name }}</span>&nbsp;<span><b>{% trans "Upload time:" %}</b> {{ h5p_xblock.h5p_content_meta.upload_time }}</span></div>
       {% endif %}
 
-      <div class="astrodivider"><div class="astrodividermask"></div><span><i>OR</i></span></div>
-      <div class="wrapper-comp-setting">
-        <label class="label setting-label" for="xb_display_name">{% trans 'Reuse Existing H5P Content' %}</label>
-        <input class="input setting-input text-to-copy" name="xb_existing_content_path" id="xb_existing_content_path" value="{{ h5p_xblock.h5p_content_json_path|default_if_none:'' }}" type="text" />
-        <i class="fa fa-copy copy-text"></i>
+      <div class="tip setting-help h5p-upload-help">
+        {% trans "Use" %} <a href="https://lumi.education/en/" target="_blank" rel="noopener noreferrer">Lumi</a> {% trans "to create your H5P content. Download the finished content as a .h5p file, then upload it here." %}
       </div>
-      <div class="tip setting-help">{% trans 'Enter path of existing content or copy path to reuse this content in another block' %}</div>
+
+      <div class="h5p-reuse-existing-content">
+        <div class="astrodivider"><div class="astrodividermask"></div><span><i>OR</i></span></div>
+        <div class="wrapper-comp-setting">
+          <label class="label setting-label" for="xb_display_name">{% trans 'Reuse Existing H5P Content' %}</label>
+          <input class="input setting-input text-to-copy" name="xb_existing_content_path" id="xb_existing_content_path" value="{{ h5p_xblock.h5p_content_json_path|default_if_none:'' }}" type="text" />
+          <i class="fa fa-copy copy-text"></i>
+        </div>
+        <div class="tip setting-help">{% trans 'Enter path of existing content or copy path to reuse this content in another block' %}</div>
+      </div>
     </li>
     <li class="field comp-setting-entry is-set">
       <div class="wrapper-comp-setting">
